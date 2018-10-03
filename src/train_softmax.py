@@ -123,7 +123,7 @@ def parse_args():
   parser.add_argument('--scale', type=float, default=0.9993, help='param for sphere')
   parser.add_argument('--rand-mirror', type=int, default=1, help='if do random mirror in training')
   parser.add_argument('--cutoff', type=int, default=0, help='cut off aug')
-  parser.add_argument('--target', type=str, default='lfw,cfp_fp,agedb_30', help='verification targets')
+  parser.add_argument('--target', type=str, default='lfw,cfp_fp,cfp_ff,vgg2_fp,agedb_30', help='verification targets')
   parser.add_argument('--ce-loss', default=False, action='store_true', help='if output ce loss')
   args = parser.parse_args()
   return args
@@ -307,7 +307,7 @@ def train_net(args):
       args.per_batch_size = 128
     args.batch_size = args.per_batch_size*args.ctx_num
     args.rescale_threshold = 0
-    args.image_channel = 3
+    args.image_channel = 1
 
     os.environ['BETA'] = str(args.beta)
     data_dir_list = args.data_dir.split(',')
@@ -414,7 +414,7 @@ def train_net(args):
     if len(args.lr_steps)==0:
       lr_steps = [40000, 60000, 80000]
       if args.loss_type>=1 and args.loss_type<=7:
-        lr_steps = [100000, 140000, 160000]
+        lr_steps = [160000, 240000, 320000, 400000, 480000, 560000]
       p = 512.0/args.batch_size
       for l in xrange(len(lr_steps)):
         lr_steps[l] = int(lr_steps[l]*p)

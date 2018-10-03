@@ -181,12 +181,37 @@ class FaceImageIter(io.DataIter):
             while i < batch_size:
                 label, s, bbox, landmark = self.next_sample()
                 _data = self.imdecode(s)
+                assert _data.dtype == np.uint8
+                _data = _data.astype('float32')
+                if True:
+                    do_color_aug = random.randint(0,1)
+                    if do_color_aug == 1:
+                        color_aug_method = random.randint(0,1)
+                        if color_aug_method == 0:
+                            ratio = random.uniform(0.8, 1.2)
+                            _data = _data * ratio
+                        else:
+                            diffv = random.randint(-40,40)
+                            _data = _data + diffv
+                        _data = mx.ndarray.clip(_data, 0,255)
+                    rnd = random.randint(0,1)
+                    if rnd:
+                        rr = random.uniform(0.8, 1.2)
+                        ns = int(112.0 * rr)
+                        #s = random.randint(90,120)
+                        aug_a = mx.image.ResizeAug(size=ns)
+                        aug_b = mx.image.ResizeAug(size=112)
+                        _data = aug_a(_data)
+                        _data = aug_b(_data)
+                if False:
+                    fn = random.randint(0,1024)
+                    cv2.imwrite('/tmp/debug/' + str(fn) + '.jpg', _data.asnumpy())        
                 if self.rand_mirror:
                   _rd = random.randint(0,1)
                   if _rd==1:
                     _data = mx.ndarray.flip(data=_data, axis=1)
                 if self.nd_mean is not None:
-                    _data = _data.astype('float32')
+                    #_data = _data.astype('float32')
                     _data -= self.nd_mean
                     _data *= 0.0078125
                 if self.cutoff>0:
@@ -225,8 +250,8 @@ class FaceImageIter(io.DataIter):
         """Checks if the input data shape is valid"""
         if not len(data_shape) == 3:
             raise ValueError('data_shape should have length 3, with dimensions CxHxW')
-        if not data_shape[0] == 3:
-            raise ValueError('This iterator expects inputs to have 3 channels.')
+        #if not data_shape[0] == 3:
+        #    raise ValueError('This iterator expects inputs to have 3 channels.')
 
     def check_valid_image(self, data):
         """Checks if the input data is valid"""
@@ -236,7 +261,7 @@ class FaceImageIter(io.DataIter):
     def imdecode(self, s):
         """Decodes a string or byte string to an NDArray.
         See mx.img.imdecode for more details."""
-        img = mx.image.imdecode(s) #mx.ndarray
+        img = mx.image.imdecode(s,flag=0) #mx.ndarray
         return img
 
     def read_image(self, fname):

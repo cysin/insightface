@@ -194,7 +194,8 @@ def parse_args():
 
 if __name__ == '__main__':
     args = parse_args()
-    if args.list:
+    if False: #args.list:
+        #print(args.list)
         pass
         #make_list(args)
     else:
