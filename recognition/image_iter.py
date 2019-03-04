@@ -197,6 +197,10 @@ class FaceImageIter(io.DataIter):
             while i < batch_size:
                 label, s, bbox, landmark = self.next_sample()
                 _data = self.imdecode(s)
+                #img = _data.asnumpy() # convert to numpy array
+                #img = img.transpose((1, 2, 0))  # Move channel to the last dimension
+                #img = img.astype(np.uint8)  # use uint8 (0-255)
+                #print(img)
                 if _data.shape[0]!=self.data_shape[1]:
                   _data = mx.image.resize_short(_data, self.data_shape[1])
                 if self.rand_mirror:
@@ -215,7 +219,7 @@ class FaceImageIter(io.DataIter):
                 if self.nd_mean is not None:
                   _data = _data.astype('float32', copy=False)
                   _data -= self.nd_mean
-                  _data *= 0.0078125
+                  #_data *= 0.0078125
                 if self.cutoff>0:
                   _rd = random.randint(0,1)
                   if _rd==1:
