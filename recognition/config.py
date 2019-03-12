@@ -7,7 +7,7 @@ config = edict()
 config.bn_mom = 0.9
 config.workspace = 256
 config.emb_size = 512
-config.ckpt_embedding = False
+config.ckpt_embedding = True
 config.net_se = 0
 config.net_act = 'prelu'
 config.net_unit = 3
@@ -22,7 +22,7 @@ config.fc7_no_bias = False
 config.max_steps = 0
 config.data_rand_mirror = True
 config.data_cutoff = False
-config.data_color = 1
+config.data_color = 3
 config.data_images_filter = 0
 
 

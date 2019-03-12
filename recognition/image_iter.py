@@ -83,7 +83,8 @@ class FaceImageIter(io.DataIter):
         print('rand_mirror', rand_mirror)
         self.cutoff = cutoff
         self.color_jittering = color_jittering
-        self.CJA = mx.image.ColorJitterAug(0.125, 0.125, 0.125)
+        #self.CJA = mx.image.ColorJitterAug(0.125, 0.125, 0.125)
+        self.CJA = mx.image.ColorJitterAug(0.4, 0.4, 0.4)
         self.provide_label = [(label_name, (batch_size,))]
         #print(self.provide_label[0][1])
         self.cur = 0
@@ -173,7 +174,7 @@ class FaceImageIter(io.DataIter):
     def compress_aug(self, img):
       buf = BytesIO()
       img = Image.fromarray(img.asnumpy(), 'RGB')
-      q = random.randint(2, 20)
+      q = random.randint(40, 95)
       img.save(buf, format='JPEG', quality=q)
       buf = buf.getvalue()
       img = Image.open(BytesIO(buf))
@@ -207,15 +208,17 @@ class FaceImageIter(io.DataIter):
                   _rd = random.randint(0,1)
                   if _rd==1:
                     _data = mx.ndarray.flip(data=_data, axis=1)
-                if self.color_jittering>0:
-                  if self.color_jittering>1:
-                    _rd = random.randint(0,1)
-                    if _rd==1:
-                      _data = self.compress_aug(_data)
+                if self.color_jittering>1:
+                  _rd = random.randint(0,1)
+                  if _rd==1:
+                    _data = self.compress_aug(_data)
                   #print('do color aug')
-                  _data = _data.astype('float32', copy=False)
-                  #print(_data.__class__)
-                  _data = self.color_aug(_data, 0.125)
+                if self.color_jittering>0:
+                  _rd = random.randint(0,1)
+                  if _rd==1:
+                    _data = _data.astype('float32', copy=False)
+                    #print(_data.__class__)
+                    _data = self.color_aug(_data, 0.4)
                 if self.nd_mean is not None:
                   _data = _data.astype('float32', copy=False)
                   _data -= self.nd_mean
