@@ -173,7 +173,7 @@ def train_net(args):
     #args.partial_start = local_classes_range[0]
 
     print('Called with argument:', args, config)
-    mean = None
+    mean = [123.0,117.0,104.0]
 
     begin_epoch = 0
     base_lr = args.lr
@@ -257,14 +257,25 @@ def train_net(args):
       #global global_step
       global_step[0]+=1
       mbatch = global_step[0]
-      for step in lr_steps:
-        if mbatch==step:
-          opt.lr *= 0.1
-          print('lr change to', opt.lr)
-          break
+      if mbatch % 100 == 0:
+        try:
+          with open('lr.next') as f:
+              file_str = f.read()
+              lr_next = float(file_str)
+              os.remove('lr.next')
+              if lr_next > 0.0 and lr_next != opt.lr:
+                 opt.lr = lr_next
+                 print("lr changed to %f" % opt.lr)
+        except Exception, e:
+          pass
+      #for step in lr_steps:
+      #  if mbatch==step:
+      #    opt.lr *= 0.1
+      #    print('lr change to', opt.lr)
+      #    break
 
       _cb(param)
-      if mbatch%1000==0:
+      if mbatch%200==0:
         print('lr-batch-epoch:',opt.lr,param.nbatch,param.epoch)
 
       if mbatch>=0 and mbatch%args.verbose==0:
