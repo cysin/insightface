@@ -45,8 +45,8 @@ def get_symbol():
     bn_mom = config.bn_mom
     workspace = config.workspace
     data = mx.symbol.Variable(name="data") # 224
-    data = data-127.5
-    data = data*0.0078125
+    #data = data-127.5
+    #data = data*0.0078125
     fc_type = config.net_output
     bf = int(32*config.net_multiplier)
     if config.net_input==0:

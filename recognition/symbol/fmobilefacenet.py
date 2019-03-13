@@ -51,8 +51,8 @@ def get_symbol():
     print('in_network', config)
     fc_type = config.net_output
     data = mx.symbol.Variable(name="data")
-    data = data-127.5
-    data = data*0.0078125
+    #data = data-127.5
+    #data = data*0.0078125
     conv_1 = Conv(data, num_filter=64, kernel=(3, 3), pad=(1, 1), stride=(2, 2), name="conv_1")
     conv_2_dw = Conv(conv_1, num_group=64, num_filter=64, kernel=(3, 3), pad=(1, 1), stride=(1, 1), name="conv_2_dw")
     conv_23 = DResidual(conv_2_dw, num_out=64, kernel=(3, 3), stride=(2, 2), pad=(1, 1), num_group=128, name="dconv_23")
