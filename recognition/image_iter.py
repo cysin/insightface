@@ -84,7 +84,7 @@ class FaceImageIter(io.DataIter):
         self.cutoff = cutoff
         self.color_jittering = color_jittering
         #self.CJA = mx.image.ColorJitterAug(0.125, 0.125, 0.125)
-        self.CJA = mx.image.ColorJitterAug(0.4, 0.4, 0.4)
+        self.CJA = mx.image.ColorJitterAug(0.5, 0.5, 0.5)
         self.provide_label = [(label_name, (batch_size,))]
         #print(self.provide_label[0][1])
         self.cur = 0
