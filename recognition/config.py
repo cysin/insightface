@@ -22,7 +22,7 @@ config.fc7_no_bias = False
 config.max_steps = 0
 config.data_rand_mirror = True
 config.data_cutoff = False
-config.data_color = 3
+config.data_color = 1
 config.data_images_filter = 0
 
 

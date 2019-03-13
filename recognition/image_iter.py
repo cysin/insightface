@@ -208,17 +208,17 @@ class FaceImageIter(io.DataIter):
                   _rd = random.randint(0,1)
                   if _rd==1:
                     _data = mx.ndarray.flip(data=_data, axis=1)
-                if self.color_jittering>1:
-                  _rd = random.randint(0,1)
-                  if _rd==1:
-                    _data = self.compress_aug(_data)
+                #if self.color_jittering>1:
+                  #_rd = random.randint(0,1)
+                  #if _rd==1:
+                  #  _data = self.compress_aug(_data)
                   #print('do color aug')
                 if self.color_jittering>0:
                   _rd = random.randint(0,1)
                   if _rd==1:
                     _data = _data.astype('float32', copy=False)
                     #print(_data.__class__)
-                    _data = self.color_aug(_data, 0.4)
+                    _data = self.color_aug(_data, 0.5)
                 if self.nd_mean is not None:
                   _data = _data.astype('float32', copy=False)
                   _data -= self.nd_mean
