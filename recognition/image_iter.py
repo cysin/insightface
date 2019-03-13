@@ -174,7 +174,7 @@ class FaceImageIter(io.DataIter):
     def compress_aug(self, img):
       buf = BytesIO()
       img = Image.fromarray(img.asnumpy(), 'RGB')
-      q = random.randint(40, 95)
+      q = random.randint(70, 94)
       img.save(buf, format='JPEG', quality=q)
       buf = buf.getvalue()
       img = Image.open(BytesIO(buf))
@@ -208,10 +208,10 @@ class FaceImageIter(io.DataIter):
                   _rd = random.randint(0,1)
                   if _rd==1:
                     _data = mx.ndarray.flip(data=_data, axis=1)
-                #if self.color_jittering>1:
-                  #_rd = random.randint(0,1)
-                  #if _rd==1:
-                  #  _data = self.compress_aug(_data)
+                if self.color_jittering>1:
+                  _rd = random.randint(0,1)
+                  if _rd==1:
+                    _data = self.compress_aug(_data)
                   #print('do color aug')
                 if self.color_jittering>0:
                   _rd = random.randint(0,1)
