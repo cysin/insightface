@@ -13,6 +13,8 @@ import sklearn
 import datetime
 import numpy as np
 import cv2
+from PIL import Image
+from io import BytesIO
 
 import mxnet as mx
 from mxnet import ndarray as nd
@@ -22,7 +24,7 @@ from mxnet import ndarray as nd
 from mxnet import io
 from mxnet import recordio
 sys.path.append(os.path.join(os.path.dirname(__file__), 'common'))
-import face_preprocess
+#import face_preprocess
 
 logger = logging.getLogger()
 
@@ -69,10 +71,12 @@ class FaceImageIter(io.DataIter):
         self.shuffle = shuffle
         self.image_size = '%d,%d'%(data_shape[1],data_shape[2])
         self.rand_mirror = rand_mirror
+        self.color_jittering = 3
         print('rand_mirror', rand_mirror)
         self.cutoff = cutoff
         #self.cast_aug = mx.image.CastAug()
         #self.color_aug = mx.image.ColorJitterAug(0.4, 0.4, 0.4)
+        self.CJA = mx.image.ColorJitterAug(0.5, 0.5, 0.5)
         self.ctx_num = ctx_num 
         self.per_batch_size = int(self.batch_size/self.ctx_num)
         self.images_per_identity = images_per_identity
@@ -459,13 +463,14 @@ class FaceImageIter(io.DataIter):
       return src
 
     def color_aug(self, img, x):
-      augs = [self.brightness_aug, self.contrast_aug, self.saturation_aug]
-      random.shuffle(augs)
-      for aug in augs:
-        #print(img.shape)
-        img = aug(img, x)
-        #print(img.shape)
-      return img
+      #augs = [self.brightness_aug, self.contrast_aug, self.saturation_aug]
+      #random.shuffle(augs)
+      #for aug in augs:
+      #  #print(img.shape)
+      #  img = aug(img, x)
+      #  #print(img.shape)
+      #return img
+      return self.CJA(img)  
 
     def mirror_aug(self, img):
       _rd = random.randint(0,1)
@@ -473,7 +478,15 @@ class FaceImageIter(io.DataIter):
         for c in xrange(img.shape[2]):
           img[:,:,c] = np.fliplr(img[:,:,c])
       return img
-
+  
+    def compress_aug(self, img):
+      buf = BytesIO()
+      img = Image.fromarray(img.asnumpy(), 'RGB')
+      q = random.randint(40, 95)
+      img.save(buf, format='JPEG', quality=q)
+      buf = buf.getvalue()
+      img = Image.open(BytesIO(buf))
+      return nd.array(np.asarray(img, 'float32'))
 
     def next(self):
         if not self.is_init:
@@ -496,6 +509,17 @@ class FaceImageIter(io.DataIter):
                   _rd = random.randint(0,1)
                   if _rd==1:
                     _data = mx.ndarray.flip(data=_data, axis=1)
+                if self.color_jittering>1:
+                  _rd = random.randint(0,1)
+                  if _rd==1:
+                    _data = self.compress_aug(_data)
+                  #print('do color aug')
+                if self.color_jittering>0:
+                  _rd = random.randint(0,1)
+                  if _rd==1:
+                    _data = _data.astype('float32', copy=False)
+                    #print(_data.__class__)
+                    _data = self.color_aug(_data, 0.5)
                 if self.cutoff>0:
                   centerh = random.randint(0, _data.shape[0]-1)
                   centerw = random.randint(0, _data.shape[1]-1)

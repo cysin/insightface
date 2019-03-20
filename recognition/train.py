@@ -200,6 +200,7 @@ def train_net(args):
     val_dataiter = None
 
     if config.loss_name.find('triplet')>=0:
+      model.bind([("data", (args.batch_size, args.image_channel, image_size[0], image_size[1]))], [("softmax_label", (args.batch_size,))])
       from triplet_image_iter import FaceImageIter
       triplet_params = [config.triplet_bag_size, config.triplet_alpha, config.triplet_max_ap]
       train_dataiter = FaceImageIter(
