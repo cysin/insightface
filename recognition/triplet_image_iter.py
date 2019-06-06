@@ -32,7 +32,7 @@ class FaceImageIter(io.DataIter):
 
     def __init__(self, batch_size, data_shape,
                  path_imgrec = None,
-                 shuffle=False, aug_list=None,
+                 shuffle=False, aug_list=None, mean=None,
                  rand_mirror = False, cutoff = 0,
                  ctx_num = 0, images_per_identity = 0,
                  triplet_params = None,
@@ -76,7 +76,7 @@ class FaceImageIter(io.DataIter):
         self.cutoff = cutoff
         #self.cast_aug = mx.image.CastAug()
         #self.color_aug = mx.image.ColorJitterAug(0.4, 0.4, 0.4)
-        self.CJA = mx.image.ColorJitterAug(0.5, 0.5, 0.5)
+        self.CJA = mx.image.ColorJitterAug(0.25, 0.25, 0.25)
         self.ctx_num = ctx_num 
         self.per_batch_size = int(self.batch_size/self.ctx_num)
         self.images_per_identity = images_per_identity
@@ -110,6 +110,11 @@ class FaceImageIter(io.DataIter):
         self.is_init = False
         self.times = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
         #self.reset()
+        self.mean = mean
+        self.nd_mean = None
+        if self.mean:
+          self.mean = np.array(self.mean, dtype=np.float32).reshape(1,1,3)
+          self.nd_mean = mx.nd.array(self.mean).reshape((1,1,3))
 
 
 
@@ -520,6 +525,26 @@ class FaceImageIter(io.DataIter):
                     _data = _data.astype('float32', copy=False)
                     #print(_data.__class__)
                     _data = self.color_aug(_data, 0.5)
+                if self.color_jittering>2:
+                  _rd = random.randint(0,2)
+                  if _rd==1:
+                    _data = _data.astype('float32', copy=False)
+                    coef = nd.array([[[0.299, 0.587, 0.114]]])
+                    _data = _data * coef
+                    _data = nd.sum(_data, axis=2, keepdims=True)
+                    _data = nd.clip(_data, 0, 255)
+                    #print(_data.shape)
+                    _data = nd.repeat(_data, repeats=3, axis=-1)
+                    
+                    #--------------------debug--------------------
+                    #img = _data.asnumpy() # convert to numpy array
+                    #img = img.astype(np.uint8)  # use uint8 (0-255)
+                    #cv2.imwrite('/tmp/gray.jpg', img)
+                    #--------------------debug--------------------
+                if self.nd_mean is not None:
+                  _data = _data.astype('float32', copy=False)
+                  _data -= self.nd_mean
+                  
                 if self.cutoff>0:
                   centerh = random.randint(0, _data.shape[0]-1)
                   centerw = random.randint(0, _data.shape[1]-1)
