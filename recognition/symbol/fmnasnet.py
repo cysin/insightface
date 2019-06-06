@@ -157,8 +157,8 @@ class MNasNet(nn.HybridBlock):
 def get_symbol():
   net = MNasNet(config.net_multiplier)
   data = mx.sym.Variable(name='data')
-  data = data-127.5
-  data = data*0.0078125
+  #data = data-127.5
+  #data = data*0.0078125
   body = net(data)
   fc1 = symbol_utils.get_fc1(body, config.emb_size, config.net_output, input_channel=net.num_output_channel())
   return fc1

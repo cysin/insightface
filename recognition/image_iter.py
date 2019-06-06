@@ -84,7 +84,7 @@ class FaceImageIter(io.DataIter):
         self.cutoff = cutoff
         self.color_jittering = color_jittering
         #self.CJA = mx.image.ColorJitterAug(0.125, 0.125, 0.125)
-        self.CJA = mx.image.ColorJitterAug(0.5, 0.5, 0.5)
+        self.CJA = mx.image.ColorJitterAug(0.25, 0.25, 0.25)
         self.provide_label = [(label_name, (batch_size,))]
         #print(self.provide_label[0][1])
         self.cur = 0
@@ -219,6 +219,25 @@ class FaceImageIter(io.DataIter):
                     _data = _data.astype('float32', copy=False)
                     #print(_data.__class__)
                     _data = self.color_aug(_data, 0.5)
+                    
+                if self.color_jittering>2:
+                  _rd = random.randint(0,3)
+                  if _rd==1:
+                    _data = _data.astype('float32', copy=False)
+                    coef = nd.array([[[0.299, 0.587, 0.114]]])
+                    _data = _data * coef
+                    _data = nd.sum(_data, axis=2, keepdims=True)
+                    _data = nd.clip(_data, 0, 255)
+                    #print(_data.shape)
+                    _data = nd.repeat(_data, repeats=3, axis=-1)
+                    
+                    #--------------------debug--------------------
+                    #img = _data.asnumpy() # convert to numpy array
+                    #img = img.astype(np.uint8)  # use uint8 (0-255)
+                    #cv2.imwrite('/tmp/gray.jpg', img)
+                    #--------------------debug--------------------
+
+                    
                 if self.nd_mean is not None:
                   _data = _data.astype('float32', copy=False)
                   _data -= self.nd_mean

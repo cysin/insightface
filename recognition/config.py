@@ -6,7 +6,7 @@ config = edict()
 
 config.bn_mom = 0.9
 config.workspace = 256
-config.emb_size = 512
+config.emb_size = 128
 config.ckpt_embedding = True
 config.net_se = 0
 config.net_act = 'prelu'
@@ -95,7 +95,7 @@ dataset = edict()
 dataset.emore = edict()
 dataset.emore.dataset = 'my'
 dataset.emore.dataset_path = 'datasets/'
-dataset.emore.num_classes = 869465
+dataset.emore.num_classes = 867121
 dataset.emore.image_shape = (112,112,3)
 dataset.emore.val_targets = ['lfw', 'cfp_fp','cfp_ff', 'vgg2_fp', 'agedb_30']
 
@@ -153,12 +153,12 @@ loss.atriplet.lr = 0.0001
 default = edict()
 
 # default network
-default.network = 'r50'
+default.network = 'r100'
 default.pretrained = ''
 default.pretrained_epoch = 1
 # default dataset
 default.dataset = 'emore'
-default.loss = 'arcface'
+default.loss = 'combined'
 default.frequent = 20
 default.verbose = 2000
 default.kvstore = 'device'
